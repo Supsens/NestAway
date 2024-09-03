@@ -46,8 +46,7 @@ const Header = () => {
           </Link>
           <Link to={currentUser ? "/Profile" : "/Sign-in"}>
             {currentUser ? (
-              <img src={currentUser?.avatar} alt="img" className="rounded-full w-12" />
-              
+              <img src={currentUser?.avatar} alt="img" className="rounded-full w-12 h-12 border-2 border-gray-300" />
             ) : (
               <li className="list-none hover:underline text-slate-700 hover:text-slate-950 cursor-pointer">
                 Sign in
@@ -79,7 +78,7 @@ const Header = () => {
             </Link>
             <Link to={currentUser ? "/Profile" : "/Sign-in"}>
             {currentUser ? (
-              <img src={currentUser?.avatar} alt="img" className="rounded-full w-12" />
+              <img src={currentUser?.avatar} alt="img" className="rounded-full w-12 h-12 border-2 border-gray-300" />
               
             ) : (
               <li className="list-none hover:underline text-slate-700 hover:text-slate-950 cursor-pointer">
