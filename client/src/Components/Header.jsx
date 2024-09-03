@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { FaSearch } from 'react-icons/fa';
-import { GiHamburgerMenu } from 'react-icons/gi';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { FaSearch } from "react-icons/fa";
+import { GiHamburgerMenu } from "react-icons/gi";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+  const { currentUser } = useSelector((store) => store.user);
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -43,28 +44,49 @@ const Header = () => {
               About
             </li>
           </Link>
-          <Link to="/sign-in">
-            <li className="list-none hover:underline text-slate-700 hover:text-slate-950 cursor-pointer">
-              Sign in
-            </li>
+          <Link to={currentUser ? "/Profile" : "/Sign-in"}>
+            {currentUser ? (
+              <img src={currentUser?.avatar} alt="img" className="rounded-full w-12" />
+              
+            ) : (
+              <li className="list-none hover:underline text-slate-700 hover:text-slate-950 cursor-pointer">
+                Sign in
+              </li>
+            )}
           </Link>
         </div>
 
         {/* Hamburger Menu for Mobile */}
-        <GiHamburgerMenu className="sm:hidden text-slate-800 cursor-pointer" onClick={toggleMenu} />
+        <GiHamburgerMenu
+          className="sm:hidden text-slate-800 cursor-pointer"
+          onClick={toggleMenu}
+        />
 
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="absolute top-16 right-0 bg-slate-200 w-full flex flex-col items-center sm:hidden divide-y divide-slate-950">
-            <Link to="/" className="py-2 hover:underline text-slate-700 hover:text-slate-950">
+            <Link
+              to="/"
+              className="py-2 hover:underline text-slate-700 hover:text-slate-950"
+            >
               Home
             </Link>
-            <Link to="/about" className="py-2 hover:underline text-slate-700 hover:text-slate-950">
+            <Link
+              to="/about"
+              className="py-2 hover:underline text-slate-700 hover:text-slate-950"
+            >
               About
             </Link>
-            <Link to="/sign-in" className="py-2 hover:underline text-slate-700 hover:text-slate-950">
-              Sign in
-            </Link>
+            <Link to={currentUser ? "/Profile" : "/Sign-in"}>
+            {currentUser ? (
+              <img src={currentUser?.avatar} alt="img" className="rounded-full w-12" />
+              
+            ) : (
+              <li className="list-none hover:underline text-slate-700 hover:text-slate-950 cursor-pointer">
+                Sign in
+              </li>
+            )}
+          </Link>
           </div>
         )}
       </div>

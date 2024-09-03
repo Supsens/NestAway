@@ -51,7 +51,7 @@ const Signin = () => {
         setTimeout(()=>{
           navigate('/');
         },1000)
-        dispatch(signInSuccess(data));
+        dispatch(signInSuccess(data.rest));
       } else {
         setLoading(false);
         dispatch(signInfailure(data.message))
