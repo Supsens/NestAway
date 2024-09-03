@@ -9,7 +9,7 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase";
-import { updateUserStart, updateUserSuccess, updateUserfailure } from "../redux/user/userSlice";
+import { updateUserStart, updateUserSuccess, updateUserfailure ,deleteUserStart,deleteUserSuccess,deleteUserfailure} from "../redux/user/userSlice";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -83,6 +83,31 @@ export default function Profile() {
       toast.error("Failed to update profile.");
     }
   };
+
+
+  const handleDeleteUser=async()=>{
+    try
+    {
+      dispatch(deleteUserStart())
+      const res= await fetch(`/api/user/delete/${currentUser?._id}`,{
+        method:'DELETE',
+      })
+      const data=await res.json();
+      if(data.success===false)
+      {
+        dispatch(deleteUserfailure(data.message))
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
+
+    }
+    catch(error)
+    {
+      dispatch(deleteUserfailure(error.message))
+      toast.error("Failed to delete the profile");
+    }
+    
+  }
 
   return (
     <div className="flex flex-col p-6 items-center">
@@ -158,7 +183,7 @@ export default function Profile() {
       </form>
 
       <div className="flex gap-52 mb-3">
-        <h3 className="text-red-500 cursor-pointer hover:text-red-600 transition-colors">
+        <h3 className="text-red-500 cursor-pointer hover:text-red-600 transition-colors" onClick={handleDeleteUser}>
           Delete Account
         </h3>
         <h3 className="text-blue-500 cursor-pointer hover:text-blue-600 transition-colors">
