@@ -9,13 +9,23 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase";
-import { updateUserStart, updateUserSuccess, updateUserfailure ,deleteUserStart,deleteUserSuccess,deleteUserfailure} from "../redux/user/userSlice";
+import {
+  updateUserStart,
+  updateUserSuccess,
+  updateUserfailure,
+  deleteUserStart,
+  deleteUserSuccess,
+  deleteUserfailure,
+  signOutUserStart,
+  signOutUserSuccess,
+  signOutUserfailure,
+} from "../redux/user/userSlice";
 import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Profile() {
   const { currentUser, loading, error } = useSelector((store) => store.user);
-  
+
   const fileRef = useRef(null);
   const [file, setFile] = useState(undefined);
   const dispatch = useDispatch();
@@ -65,9 +75,9 @@ export default function Profile() {
     try {
       dispatch(updateUserStart());
       const res = await fetch(`/api/user/update/${currentUser?._id}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formdata),
       });
@@ -84,31 +94,39 @@ export default function Profile() {
     }
   };
 
-
-  const handleDeleteUser=async()=>{
-    try
-    {
-      dispatch(deleteUserStart())
-      const res= await fetch(`/api/user/delete/${currentUser?._id}`,{
-        method:'DELETE',
-      })
-      const data=await res.json();
-      if(data.success===false)
-      {
-        dispatch(deleteUserfailure(data.message))
+  const handleDeleteUser = async () => {
+    try {
+      dispatch(deleteUserStart());
+      const res = await fetch(`/api/user/delete/${currentUser?._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(deleteUserfailure(data.message));
         return;
       }
       dispatch(deleteUserSuccess(data));
-
-    }
-    catch(error)
-    {
-      dispatch(deleteUserfailure(error.message))
+    } catch (error) {
+      dispatch(deleteUserfailure(error.message));
       toast.error("Failed to delete the profile");
     }
-    
-  }
+  };
 
+  const handleSignOut = async () => {
+    try {
+      dispatch(signOutUserStart())
+      const res = await fetch("/api/auth/signout");
+      const data = await res.json();
+      console.log(data);
+      if (data.success === false) {
+        dispatch(signOutUserfailure(data.message))
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
+    } catch (error) {
+      toast.error("Failed to Signout");
+    }
+  };
   return (
     <div className="flex flex-col p-6 items-center">
       <ToastContainer />
@@ -116,7 +134,10 @@ export default function Profile() {
         Profile
       </h1>
 
-      <form className="flex flex-col w-full max-w-sm space-y-4" onSubmit={handleSubmit}>
+      <form
+        className="flex flex-col w-full max-w-sm space-y-4"
+        onSubmit={handleSubmit}
+      >
         <input
           onChange={(e) => setFile(e.target.files[0])}
           type="file"
@@ -139,7 +160,9 @@ export default function Profile() {
         )}
         <p className="text-center">
           {fileUploadError && (
-            <span className="text-red-700 text-center">Error Image Upload (less than 2mb)</span>
+            <span className="text-red-700 text-center">
+              Error Image Upload (less than 2mb)
+            </span>
           )}
         </p>
         <input
@@ -169,9 +192,7 @@ export default function Profile() {
         >
           {loading ? "Updating..." : "Update"}
         </button>
-        {error && (
-          <p className="text-red-500 text-center mt-2">{error}</p>
-        )}
+        {error && <p className="text-red-500 text-center mt-2">{error}</p>}
         <Link to="/">
           <button
             type="button"
@@ -183,10 +204,16 @@ export default function Profile() {
       </form>
 
       <div className="flex gap-52 mb-3">
-        <h3 className="text-red-500 cursor-pointer hover:text-red-600 transition-colors" onClick={handleDeleteUser}>
+        <h3
+          className="text-red-500 cursor-pointer hover:text-red-600 transition-colors"
+          onClick={handleDeleteUser}
+        >
           Delete Account
         </h3>
-        <h3 className="text-blue-500 cursor-pointer hover:text-blue-600 transition-colors">
+        <h3
+          className="text-blue-500 cursor-pointer hover:text-blue-600 transition-colors"
+          onClick={handleSignOut}
+        >
           Sign out
         </h3>
       </div>
