@@ -193,7 +193,7 @@ export default function Profile() {
           {loading ? "Updating..." : "Update"}
         </button>
         {error && <p className="text-red-500 text-center mt-2">{error}</p>}
-        <Link to="/">
+        <Link to="/create-listing">
           <button
             type="button"
             className="w-full py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition-colors"
