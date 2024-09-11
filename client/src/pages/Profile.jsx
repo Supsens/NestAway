@@ -32,7 +32,8 @@ export default function Profile() {
   const [filepercentage, setFilepercentage] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
   const [formdata, setFormData] = useState({});
-
+  const [UserListing, setUserListing] = useState({});
+  const [ShowListingError, setShowListingError] = useState(false);
   console.log(formdata, fileUploadError, filepercentage);
 
   useEffect(() => {
@@ -41,6 +42,24 @@ export default function Profile() {
     }
   }, [file]);
 
+  const handleDeleteListing = async (ListingId) => {
+    try {
+      const res = await fetch(`/api/listing/delete/${ListingId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        toast.error(data.message);
+      }
+
+      setUserListing((prev)=>
+        prev.filter((listing) => listing._id !== ListingId)
+      );
+      toast.success("Listing Deleted Successfully");
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
   const handleFileUpload = (file) => {
     const storage = getStorage(app);
     const fileName = new Date().getTime() + file.name;
@@ -114,17 +133,34 @@ export default function Profile() {
 
   const handleSignOut = async () => {
     try {
-      dispatch(signOutUserStart())
+      dispatch(signOutUserStart());
       const res = await fetch("/api/auth/signout");
       const data = await res.json();
       console.log(data);
       if (data.success === false) {
-        dispatch(signOutUserfailure(data.message))
+        dispatch(signOutUserfailure(data.message));
         return;
       }
-      dispatch(deleteUserSuccess(data));
+      dispatch(signOutUserSuccess(data));
     } catch (error) {
       toast.error("Failed to Signout");
+    }
+  };
+
+  const handleShowListing = async () => {
+    try {
+      setShowListingError(false);
+      const res = await fetch(`/api/user/listings/${currentUser?._id}`);
+      const data = await res.json();
+      if (data.success === false) {
+        setShowListingError(true);
+        return;
+      }
+      console.log(data);
+      setUserListing(data);
+      return;
+    } catch (error) {
+      setShowListingError(true);
     }
   };
   return (
@@ -217,7 +253,49 @@ export default function Profile() {
           Sign out
         </h3>
       </div>
-      <h3 className="text-green-600 cursor-pointer">Show Listing</h3>
+      <h3 className="text-green-600 cursor-pointer" onClick={handleShowListing}>
+        Show Listing
+      </h3>
+      <p>{ShowListingError && <span className="text-red-700">Error</span>}</p>
+      {UserListing &&
+        UserListing.length > 0 &&
+        UserListing.map((Listing) => (
+          <div
+            key={Listing?._id}
+            className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300 max-w-sm flex flex-col sm:flex-row gap-6 items-center"
+          >
+            <Link
+              to={`/listing/${Listing._id}`}
+              className="block w-full sm:w-1/2"
+            >
+              <img
+                src={Listing?.imageUrls[0]}
+                alt={Listing?.name}
+                className="w-full h-48 object-cover"
+              />
+            </Link>
+            <div className="p-6 flex-1 w-full sm:w-1/2">
+              <Link to={`/listing/${Listing._id}`} className="block mt-2">
+                <h3 className="text-xl font-semibold text-gray-900 hover:text-green-500 transition-colors">
+                  {Listing?.name}
+                </h3>
+              </Link>
+              <div className="mt-4 flex justify-between items-center">
+                <button
+                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+                  onClick={() => handleDeleteListing(Listing._id)}
+                >
+                  Delete
+                </button>
+                <Link to={`/update-listing/${Listing._id}`}>
+                <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                  Edit
+                </button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        ))}
     </div>
   );
 }
